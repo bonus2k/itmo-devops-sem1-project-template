@@ -45,7 +45,6 @@ create_table() {
 
 build_app(){
   echo "Запуск сборки приложения"
-  pwd
   make build BIN=${APP}
 
   if [ $? -ne 0 ]; then
