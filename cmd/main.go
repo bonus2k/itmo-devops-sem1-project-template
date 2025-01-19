@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"github.com/sirupsen/logrus"
 	"log"
@@ -16,8 +17,12 @@ var (
 	logg *logger.Logger
 )
 
-func main() {
+func init() {
 	parseFlags()
+	flag.Parse()
+}
+
+func main() {
 	initLogger()
 	dbParam := fmt.Sprintf("postgres://%s:%s@%s?sslmode=disable", dbUsername, dbPassword, dbConn)
 	store, err := repositories.NewDataStore(logg, dbParam)
@@ -29,6 +34,7 @@ func main() {
 
 	priceService := services.NewPriceService(logg, store)
 
+	logg.Infof("Init http server %s", srvAddr)
 	err = http.ListenAndServe(srvAddr, controllers.MetricsRouter(logg, priceService))
 	if err != nil {
 		logg.WithError(err).
