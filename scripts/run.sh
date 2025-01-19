@@ -15,7 +15,7 @@ APP=prices_backend
 
 run_app(){
   echo "Попытка запуска приложения"
-  ./${APP} -d ${DB_HOST}:${DB_PORT}/${DB_NAME} -p ${DB_PASSWORD} -u ${DB_USER}
+  ./${APP} -d ${DB_HOST}:${DB_PORT}/${DB_NAME} -p ${DB_PASSWORD} -u ${DB_USER} &
 }
 
 run_app
