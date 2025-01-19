@@ -45,6 +45,7 @@ create_table() {
 
 build_app(){
   echo "Запуск сборки приложения"
+  tree
   cd ..
   make build BIN=${APP}
 
@@ -56,5 +57,5 @@ build_app(){
   echo -e "${GREEN}✓ Сборка завершена успешно${NC}"
 }
 
-#create_table
+create_table
 build_app
