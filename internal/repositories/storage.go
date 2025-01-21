@@ -7,7 +7,6 @@ import (
 	"project_sem/internal/logger"
 	"project_sem/internal/models"
 	"sync"
-	"time"
 )
 
 type DataStorable interface {
@@ -22,8 +21,6 @@ var (
 	dbErr error
 )
 
-const timeout = 30000 * time.Nanosecond
-
 type DataStore struct {
 	db *sql.DB
 }
@@ -31,20 +28,18 @@ type DataStore struct {
 func (d DataStore) AddItem(ctx context.Context, item *models.Item) error {
 	sqlStm := `INSERT INTO prices (id, name, category, price, create_date) 
 							VALUES ($1, $2, $3, $4, $5)`
-	ctxTimeout := context.Background()
-	//defer cancelFunc()
 
-	tx, err := d.db.BeginTx(ctxTimeout, nil)
+	tx, err := d.db.BeginTx(ctx, nil)
 	if err != nil {
 		return err
 	}
 
-	stmt, err := tx.PrepareContext(ctxTimeout, sqlStm)
+	stmt, err := tx.PrepareContext(ctx, sqlStm)
 	if err != nil {
 		return err
 	}
 
-	_, err = stmt.ExecContext(ctxTimeout, item.Id, item.Name, item.Category, item.Price, item.CreateDate)
+	_, err = stmt.ExecContext(ctx, item.Id, item.Name, item.Category, item.Price, item.CreateDate)
 	defer func(stmt *sql.Stmt) {
 		errStm := stmt.Close()
 		if errStm != nil {
@@ -69,10 +64,8 @@ func (d DataStore) AddItem(ctx context.Context, item *models.Item) error {
 
 func (d DataStore) GetAllItems(ctx context.Context) (*[]models.Item, error) {
 	sqlStm := `SELECT id, name, category, price, create_date FROM prices`
-	ctxTimeout := context.Background()
-	//defer cancelFunc()
 
-	stmt, err := d.db.PrepareContext(ctxTimeout, sqlStm)
+	stmt, err := d.db.PrepareContext(ctx, sqlStm)
 	if err != nil {
 		return nil, err
 	}
@@ -83,7 +76,7 @@ func (d DataStore) GetAllItems(ctx context.Context) (*[]models.Item, error) {
 		}
 	}(stmt)
 
-	rows, err := stmt.QueryContext(ctxTimeout)
+	rows, err := stmt.QueryContext(ctx)
 	if err != nil {
 		return nil, err
 	}
