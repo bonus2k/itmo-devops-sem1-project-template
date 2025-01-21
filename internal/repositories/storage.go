@@ -14,6 +14,7 @@ type DataStorable interface {
 	AddItems(ctx context.Context, item *[]models.Item) (int, error)
 	GetAllItems(ctx context.Context) (*[]models.Item, error)
 	GetStatisticItems(ctx context.Context) (*models.TotalPrice, error)
+	Close() error
 }
 
 var (
@@ -158,4 +159,8 @@ func NewDataStore(logger *logger.Logger, connect string) (*DataStorable, error) 
 		},
 	)
 	return &ds, dbErr
+}
+
+func (d DataStore) Close() error {
+	return d.Close()
 }

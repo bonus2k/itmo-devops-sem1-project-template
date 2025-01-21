@@ -31,6 +31,13 @@ func main() {
 			Error("Init DB connection")
 		os.Exit(1)
 	}
+	defer func(store repositories.DataStorable) {
+		err := store.Close()
+		if err != nil {
+			logg.WithError(err).
+				Error("Close DB connection")
+		}
+	}(*store)
 
 	priceService := services.NewPriceService(logg, store)
 
