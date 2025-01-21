@@ -38,8 +38,7 @@ func NewPriceService(logger *logger.Logger, ds *repositories.DataStorable) *Pric
 
 func (p PriceServiceImpl) SaveItem(ctx context.Context, items [][]string) (*models.TotalPrice, error) {
 	reqID := middleware.GetReqID(ctx)
-	total := models.TotalPrice{}
-	categories := make(map[string]bool)
+	newItems := make([]models.Item, 0)
 	for i, item := range items {
 		if i == 0 {
 			continue
@@ -78,22 +77,23 @@ func (p PriceServiceImpl) SaveItem(ctx context.Context, items [][]string) (*mode
 			CreateDate: parseDate,
 		}
 
-		err = p.ds.AddItem(ctx, &newItem)
-		if err != nil {
-			log.WithField("reqID", reqID).
-				WithField("item", newItem).
-				WithError(err).Error("Save the item to db")
-			continue
-		}
-
-		total.TotalItems += 1
-		total.TotalPrice += newItem.Price
-		categories[newItem.Category] = true
+		newItems = append(newItems, newItem)
 	}
 
-	total.TotalCategories = len(categories)
-	total.TotalPrice = math.Round(total.TotalPrice*100) / 100
-	return &total, nil
+	totalItems, err := p.ds.AddItems(ctx, &newItems)
+	if err != nil {
+		log.WithField("reqID", reqID).
+			WithError(err).Error("Save the items to database")
+	}
+
+	statisticItems, err := p.ds.GetStatisticItems(ctx)
+	if err != nil {
+		log.WithField("reqID", reqID).
+			WithError(err).Error("Get statistical data from database")
+	}
+
+	statisticItems.TotalItems = totalItems
+	return statisticItems, nil
 }
 
 func (p PriceServiceImpl) AllItem(ctx context.Context) ([][]string, error) {
