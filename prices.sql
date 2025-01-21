@@ -1,5 +1,5 @@
 CREATE TABLE public.prices (
-     id             integer     NOT NULL,
+     id             serial      NOT NULL,
      name           text        NULL,
      category       text        NULL,
      price          numeric     NULL,

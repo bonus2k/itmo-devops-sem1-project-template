@@ -26,7 +26,7 @@ create_table() {
     echo "Выполняем создание таблиц"
     if PGPASSWORD=$DB_PASSWORD psql -h $DB_HOST -U $DB_USER -d $DB_NAME -c "
         CREATE TABLE public.prices (
-             id             integer     NOT NULL,
+             id             serial      NOT NULL,
              name           text        NULL,
              category       text        NULL,
              price          numeric     NULL,
